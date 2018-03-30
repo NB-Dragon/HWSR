@@ -18,7 +18,7 @@ class RectChar(object):
         self.no_line  = False  #Turn to True if you want to delete the meaningless line
         self.smaller  = True   #Turn to True if you need more accurate
         self.join     = True   #Turn to True so that some rectangle can be joined together
-        self.print    = False  #Turn to True if you sure that the characters are printed
+        self.print    = True   #Turn to True if you sure that the characters are printed
 
     def get_width(self):
         return self.i_image.shape[1]
@@ -88,8 +88,6 @@ class RectChar(object):
             length_x = abs(rect[2]-rect[0])
             length_y = abs(rect[3]-rect[1])
             min_k    = max(length_y, length_x)/min(length_y, length_x)-1
-            if self.print is True and min_k < 0.3:
-                continue      #The rectangle is probably a word in the print
             while i+1 < len(self.charList):
                 rect_temp = self.charList[i+1]
                 if rect_temp[2] < rect[0] and rect_temp[1] > rect[3]:
