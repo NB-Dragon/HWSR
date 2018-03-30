@@ -18,7 +18,7 @@ class RectChar(object):
         self.no_line  = False  #Turn to True if you want to delete the meaningless line
         self.smaller  = True   #Turn to True if you need more accurate
         self.join     = True   #Turn to True so that some rectangle can be joined together
-        self.print    = False  #Turn to True if you sure that the characters are printed
+        self.print    = True   #Turn to True if you sure that the characters are printed
 
     def get_width(self):
         return self.i_image.shape[1]
