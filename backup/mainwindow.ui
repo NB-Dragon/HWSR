@@ -26,12 +26,6 @@
          <property name="title">
           <string>文件选项</string>
          </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QPushButton" name="btn_openImg">
@@ -47,9 +41,6 @@
         <widget class="QGroupBox" name="gp_ability_option">
          <property name="title">
           <string>功能选项</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="1" column="0">
@@ -97,24 +88,33 @@
          <property name="title">
           <string>阈值管理</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="6" column="2">
            <widget class="QLabel" name="sb_ratio_value">
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
-             <string>0</string>
+             <string>0.30</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
           <item row="6" column="1">
            <widget class="QSlider" name="sb_ratio">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>100</number>
+            </property>
+            <property name="value">
+             <number>30</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -123,8 +123,17 @@
           </item>
           <item row="4" column="2">
            <widget class="QLabel" name="sb_binary_value">
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
-             <string>0</string>
+             <string>120</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -132,6 +141,9 @@
            <widget class="QSlider" name="sb_binary">
             <property name="maximum">
              <number>255</number>
+            </property>
+            <property name="value">
+             <number>120</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -212,9 +224,6 @@
          </property>
          <property name="readOnly">
           <bool>true</bool>
-         </property>
-         <property name="html">
-          <string></string>
          </property>
          <property name="placeholderText">
           <string>识别结果将在此处显示</string>
