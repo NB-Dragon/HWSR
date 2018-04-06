@@ -40,12 +40,17 @@ class Detect(object):
             for img_name in image_names:
                 image_list.append(self.get_crop_image(self.image_path, img_name))
 
+        result = ""
         assert len(image_list) > 0
         for image in image_list:
+            if image is None:
+                result = result+"\n"
+                continue
             self.net.blobs['data'].data[...] = transformer.preprocess('data', image)
             self.net.forward()
             label_index = self.net.blobs['loss'].data[0].flatten().argsort()[-1:-top_k-1:-1]
-            print(self.classList[int(label_index)], end='')
+            result = result+self.classList[int(label_index)]
+        return result
 
 
 if __name__ == '__main__':
