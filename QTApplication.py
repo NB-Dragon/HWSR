@@ -102,7 +102,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             for rect in result_list:
                 if rect_temp is not None and (rect_temp[2] > rect[0] and rect_temp[1] < rect[3]):
                     image_list.append(None)
-                image_list.append(gray_image[rect[1]:rect[3], rect[0]:rect[2], :] / 255)
+                image_list.append(binary_image[rect[1]:rect[3], rect[0]:rect[2], :] / 255)
                 rect_temp = rect
             result_str = self.detect.find_class(image_list)
             self.text_result.setText(result_str)
