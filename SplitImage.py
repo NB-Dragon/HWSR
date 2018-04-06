@@ -175,4 +175,5 @@ if __name__ == '__main__':
         for char in charList:
             image_list.append(image[char[1]:char[3], char[0]:char[2], :]/255)
         detect = Detect()
-        detect.find_class(image_list)
+        result = detect.find_class(image_list)
+        print(result)
