@@ -104,7 +104,6 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                     image_list.append(None)
                 image_list.append(gray_image[rect[1]:rect[3], rect[0]:rect[2], :] / 255)
                 rect_temp = rect
-
             result_str = self.detect.find_class(image_list)
             self.text_result.setText(result_str)
             print(result_str)
