@@ -36,6 +36,9 @@ class RectChar(object):
                     binary_image[nY, nX, :] = [0, 0, 0]
                 else:
                     binary_image[nY, nX, :] = [255, 255, 255]
+        if self.no_line is True:
+            kernel       = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 4))
+            binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernel)
         return binary_image
 
     def get_small_size(self, image):
@@ -48,9 +51,6 @@ class RectChar(object):
 
     def get_char_list(self, image):
         result_image = image.copy()
-        if self.no_line is True:
-            kernel       = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 4))
-            result_image = cv2.morphologyEx(result_image, cv2.MORPH_CLOSE, kernel)
         self.analysis(result_image)
         if self.join is True:
             self.join_image()
