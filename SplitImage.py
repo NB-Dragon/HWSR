@@ -3,77 +3,68 @@ import numpy as np
 from Detect import Detect
 
 
-def show_picture(image):
-    window_name = "Image Test"
-    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-    cv2.moveWindow(window_name, 0, 0)
-    cv2.imshow(window_name, image)
-    cv2.waitKey(0)
-
-
 class RectChar(object):
-    def __init__(self, image):
-        self.i_image  = image.copy()
+    def __init__(self, no_line=False, cut=True, join=True, print=False, threshold_binary=120, threshold_ratio=0.3):
         self.charList = []
-        self.no_line  = False  #Turn to True if you want to delete the meaningless line
-        self.smaller  = True   #Turn to True if you need more accurate
-        self.join     = True   #Turn to True so that some rectangle can be joined together
-        self.print    = True   #Turn to True if you sure that the characters are printed
+        self.no_line  = no_line #Turn to True if you want to delete the meaningless line
+        self.cut      = cut     #Turn to True if you need more accurate
+        self.join     = join    #Turn to True so that some rectangle can be joined together
+        self.print    = print   #Turn to True if you sure that the characters were printed
+        self.threshold_binary = threshold_binary
+        self.threshold_ratio  = threshold_ratio
 
-    def get_width(self):
-        return self.i_image.shape[1]
+    def get_shape(self, image):
+        return image.shape
 
-    def get_height(self):
-        return self.i_image.shape[0]
+    def get_gray_value(self, bgr):
+        return (bgr[2] * 30 + bgr[1] * 59 + bgr[0] * 11) / 100
 
-    def get_image(self):
-        return self.i_image
+    def get_gray_image(self,image):
+        h, w, channel = self.get_shape(image)
+        gray_image = np.zeros((h, w, channel), np.uint8)
+        for nY in range(h):
+            for nX in range(w):
+                gray = self.get_gray_value(image[nY, nX])
+                gray_image[nY, nX, :] = [gray, gray, gray]
+        return gray_image
 
-    def get_char_list(self, threshold=120):
-        self.to_grey()
-        self.wb_color(threshold)
+    def get_binary_image(self, image):
+        h, w, channel = self.get_shape(image)
+        binary_image = np.zeros((h, w, channel), np.uint8)
+        for nY in range(h):
+            for nX in range(w):
+                if image[nY, nX, 0] < self.threshold_binary:
+                    binary_image[nY, nX, :] = [0, 0, 0]
+                else:
+                    binary_image[nY, nX, :] = [255, 255, 255]
+        return binary_image
+
+    def get_small_size(self, image):
+        black_index = np.where(image < 1)
+        top         = min(black_index[0])
+        bottom      = image.shape[0] - 1 - max(black_index[0])
+        left        = min(black_index[1])
+        right       = image.shape[1] - 1 - max(black_index[1])
+        return [top, bottom, left, right]
+
+    def get_char_list(self, image):
+        result_image = image.copy()
         if self.no_line is True:
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 4))
-            self.i_image = cv2.morphologyEx(self.i_image, cv2.MORPH_CLOSE, kernel)
-        self.analysis()
+            kernel       = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 4))
+            result_image = cv2.morphologyEx(result_image, cv2.MORPH_CLOSE, kernel)
+        self.analysis(result_image)
         if self.join is True:
             self.join_image()
         return self.charList
 
-    def get_grey_value(self, bgr):
-        return (bgr[2] * 30 + bgr[1] * 59 + bgr[0] * 11) / 100
-
-    def get_small_size(self, image):
-        black_index = np.where(image < 1)
-        top    = min(black_index[0])
-        bottom = image.shape[0]-1-max(black_index[0])
-        left   = min(black_index[1])
-        right  = image.shape[1]-1-max(black_index[1])
-        return [top, bottom, left, right]
-
-    def to_grey(self):
-        for nY in range(self.get_height()):
-            for nX in range(self.get_width()):
-                grey = self.get_grey_value(self.i_image[nY, nX])
-                self.i_image[nY, nX, 0] = grey
-        self.i_image = self.i_image[:, :, 0]
-
-    def wb_color(self, level):
-        for nY in range(self.get_height()):
-            for nX in range(self.get_width()):
-                if self.i_image[nY, nX] < level:
-                    self.i_image[nY, nX] = 0
-                else:
-                    self.i_image[nY, nX] = 255
-
-    def analysis(self):
-        row_list = self.get_row_list(self.i_image)
+    def analysis(self, image):
+        row_list = self.get_row_list(image)
         for i in range(len(row_list)):
-            roi_image = self.i_image[row_list[i][0]:row_list[i][1], 0:self.get_width()]
+            roi_image = image[row_list[i][0]:row_list[i][1], 0:self.get_shape(image)[1]]
             col_list  = self.getColList(roi_image)
             for j in range(len(col_list)):
-                if self.smaller is True:
-                    temp = self.get_small_size(self.i_image[row_list[i][0]:row_list[i][1], col_list[j][0]:col_list[j][1]])
+                if self.cut is True:
+                    temp = self.get_small_size(image[row_list[i][0]:row_list[i][1], col_list[j][0]:col_list[j][1]])
                     temp = [col_list[j][0]+temp[2], row_list[i][0]+temp[0], col_list[j][1]-temp[3], row_list[i][1]-temp[1]]
                 else:
                     temp = [col_list[j][0], row_list[i][0], col_list[j][1], row_list[i][1]]
@@ -88,7 +79,7 @@ class RectChar(object):
             length_x = abs(rect[2]-rect[0])
             length_y = abs(rect[3]-rect[1])
             min_k    = max(length_y, length_x)/min(length_y, length_x)-1
-            if self.print is True and min_k < 0.3:
+            if self.print is True and min_k < self.threshold_ratio:
                 continue     #The rectangle is probably a word in the print
             while i+1 < len(self.charList):
                 rect_temp = self.charList[i+1]
@@ -99,7 +90,7 @@ class RectChar(object):
                 if self.print is True:
                     l_x = abs(rect_temp[2] - rect_temp[0])
                     l_y = abs(rect_temp[3] - rect_temp[1])
-                    if max(l_y, l_x)/min(l_y, l_x)-1 < 0.3:
+                    if max(l_y, l_x)/min(l_y, l_x)-1 < self.threshold_ratio:
                         break #The rectangle is probably a word in the print
 
                 top    = min(rect[1], rect_temp[1])
@@ -160,20 +151,19 @@ class RectChar(object):
 
 
 if __name__ == '__main__':
-    image      = cv2.imread("汉字_印刷.jpg")
-    simple     = RectChar(image)
-    charList   = simple.get_char_list(120)
-    image_list = []
-    image_show = True
-
-    if image_show is True:
-        for char in charList:
-            cv2.rectangle(image, (char[0], char[1]), (char[2], char[3]), (0, 0, 255))
-        show_picture(image)
-        cv2.imwrite("test_out.jpg", image)
-    else:
-        for char in charList:
-            image_list.append(image[char[1]:char[3], char[0]:char[2], :]/255)
-        detect = Detect()
-        result = detect.find_class(image_list)
-        print(result)
+    image        = cv2.imread("汉字_手写.jpg")
+    rect_char    = RectChar()
+    gray_image   = rect_char.get_gray_image(image)
+    binary_image = rect_char.get_binary_image(gray_image)
+    result_list  = rect_char.get_char_list(binary_image)
+    image_list   = []
+    
+    rect_temp = None
+    for rect in result_list:
+        if rect_temp is not None and (rect_temp[2] > rect[0] and rect_temp[1] < rect[3]):
+            image_list.append(None)
+        image_list.append(image[rect[1]:rect[3], rect[0]:rect[2], :]/255)
+        rect_temp = rect
+    detect = Detect()
+    result = detect.find_class(image_list)
+    print(result)
