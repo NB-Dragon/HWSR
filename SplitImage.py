@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-from Detect import Detect
 
 
 class RectChar(object):
@@ -152,6 +151,7 @@ class RectChar(object):
 
 if __name__ == '__main__':
     image        = cv2.imread("汉字_手写.jpg")
+    from Detect import Detect
     rect_char    = RectChar()
     gray_image   = rect_char.get_gray_image(image)
     binary_image = rect_char.get_binary_image(gray_image)
