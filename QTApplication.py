@@ -11,15 +11,19 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        self.detect         = Detect()
         self.original_image = None
         self.after_image    = None
+
+    def resizeEvent(self, a0: QtGui.QResizeEvent):
+        self.lbl_resize_event()
 
     def get_pix_from_mat(self, image, width, height):
         h, w, channel = image.shape
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = QtGui.QImage(image, w, h, w * channel, QtGui.QImage.Format_RGB888)
         image = QtGui.QPixmap.fromImage(image)
-        image = image.scaled(width, height, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        image = image.scaled(width-4, height-4, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         return image
 
     def get_boolean(self, check_state):
@@ -81,13 +85,16 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         if object_origin_name == "btn_split":
             print("123")
         elif object_origin_name == "btn_gray":
+            self.after_image = gray_image
             result_image = self.get_pix_from_mat(gray_image, object_target.width(), object_target.height())
         elif object_origin_name == "btn_brinary":
+            self.after_image = binary_image
             result_image = self.get_pix_from_mat(binary_image, object_target.width(), object_target.height())
         elif object_origin_name == "btn_location":
             result_image = self.original_image.copy()
             for char in result_list:
                 cv2.rectangle(result_image, (char[0], char[1]), (char[2], char[3]), (0, 0, 255))
+            self.after_image = result_image
             result_image = self.get_pix_from_mat(result_image, object_target.width(), object_target.height())
         elif object_origin_name == "btn_recognize":
             image_list = []
@@ -97,28 +104,23 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                     image_list.append(None)
                 image_list.append(gray_image[rect[1]:rect[3], rect[0]:rect[2], :] / 255)
                 rect_temp = rect
-            detect     = Detect()
-            result_str = detect.find_class(image_list)
+
+            result_str = self.detect.find_class(image_list)
             self.text_result.setText(result_str)
             print(result_str)
 
         if result_image is not None:
             object_target.setPixmap(result_image)
 
+    def lbl_resize_event(self):
+        lbl = [self.lbl_image_origin, self.lbl_image_after]
+        img = [self.original_image, self.after_image]
 
-
-
-
-    # def lbl_resize_event(self):
-    #     lbl = [self.lbl_image_origin, self.lbl_image_after]
-    #     img = [self.original_image, self.after_image]
-    #
-    #     for index in range(len(lbl)):
-    #         if img[index] is None:
-    #             continue
-    #         target = lbl[index]
-    #         image  = img[index].scaled(target.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-    #         target.setPixmap(image)
+        for index in range(len(lbl)):
+            if img[index] is None: continue
+            target = lbl[index]
+            image  = self.get_pix_from_mat(img[index],target.width(),target.height())
+            target.setPixmap(image)
 
 
 if __name__ == '__main__':
