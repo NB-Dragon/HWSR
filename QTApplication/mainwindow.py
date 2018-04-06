@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -170,7 +171,6 @@ class Ui_MainWindow(object):
         self.btn_brinary.clicked.connect(MainWindow.btn_click)
         self.btn_location.clicked.connect(MainWindow.btn_click)
         self.btn_recognize.clicked.connect(MainWindow.btn_click)
-        # self.lbl_image_origin.resizeEvent.connect(MainWindow.lbl_resize_event())
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
