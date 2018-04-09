@@ -35,6 +35,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 return True
             elif a1.type() == QtCore.QEvent.MouseButtonPress and a1.button() == 2:
                 self.start_point = None
+                self.start       = False
                 a0.setToolTip("")
                 a0.setCursor(QtCore.Qt.ArrowCursor)
                 a0.setPixmap(self.pix_map)
