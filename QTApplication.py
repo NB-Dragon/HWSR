@@ -40,8 +40,10 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
                 a0.setPixmap(self.pix_map)
                 return True
             elif a1.type() == QtCore.QEvent.MouseButtonRelease and a1.button() == 1:
-                if self.start_point != None:
+                if self.start_point is not None:
                     self.end_point      = a1.pos()
+                    distance = self.start_point - self.end_point
+                    if abs(distance.y() * distance.x()) < 50: return True
                     location            = self.draw_rect(a0, self.pix_map, a0.size(), self.pix_map.size(), self.start_point, self.end_point)
                     self.original_image = self.original_image[location[1]:location[3], location[0]:location[2], :]
                     self.pix_map        = self.get_pix_from_mat(self.original_image, a0.width(), a0.height())
@@ -57,20 +59,21 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             return self.eventFilter(a0, a1)
 
-    def draw_rect(self, object, pix_map, out_size, in_size, start_x_y, end_x_y):
-        temp = pix_map.copy()
-        painter = QtGui.QPainter(temp)
+    def draw_rect(self, q_object, pix_map, out_size, in_size, start_x_y, end_x_y):
+        distance = start_x_y-end_x_y
+        min_x    = min(start_x_y.x(), end_x_y.x())
+        min_y    = min(start_x_y.y(), end_x_y.y())
+        width    = abs(distance.x())
+        height   = abs(distance.y())
+        temp     = pix_map.copy()
+        painter  = QtGui.QPainter(temp)
         painter.setPen(QtGui.QColor(255, 0, 0))
         v_space, h_space = self.clac_space(out_size, in_size)
-        min_x   = min(start_x_y.x(), end_x_y.x())
-        min_y   = min(start_x_y.y(), end_x_y.y())
-        width   = abs(start_x_y.x() - end_x_y.x())
-        height  = abs(start_x_y.y() - end_x_y.y())
-        ratio_x = self.original_image.shape[1]/pix_map.width()
-        ratio_y = self.original_image.shape[0]/pix_map.height()
+        ratio_x  = self.original_image.shape[1]/pix_map.width()
+        ratio_y  = self.original_image.shape[0]/pix_map.height()
         painter.drawRect(min_x - h_space, min_y - v_space, width, height)
         painter.end()
-        object.setPixmap(temp)
+        q_object.setPixmap(temp)
         return [int((min_x - h_space)*ratio_x), int((min_y - v_space)*ratio_y), int((min_x - h_space+width)*ratio_x), int((min_y - v_space+height)*ratio_y)]
 
     def clac_space(self, out_size, in_size):
@@ -131,7 +134,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         object_origin_name = self.sender().objectName()
 
         if object_origin_name == "btn_split":
-            if self.original_image is None:return
+            if self.original_image is None: return
             self.start = True
             self.lbl_image_origin.setCursor(QtCore.Qt.CrossCursor)
             self.lbl_image_origin.setToolTip("通过鼠标左键拖动即可完成裁剪，中途可右键取消")
@@ -159,7 +162,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
         elif object_origin_name == "btn_location":
             result_image     = self.original_image.copy()
             for char in result_list:
-                cv2.rectangle(result_image, (char[0]-1, char[1]-1), (char[2]+1, char[3]+1), (0, 0, 255))
+                cv2.rectangle(result_image, (char[0], char[1]), (char[2], char[3]), (0, 0, 255))
             self.after_image = result_image
             result_image     = self.get_pix_from_mat(result_image, object_target.width(), object_target.height())
         elif object_origin_name == "btn_recognize":
@@ -168,7 +171,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             for rect in result_list:
                 if rect_temp is not None and (rect_temp[2] > rect[0] and rect_temp[1] < rect[3]):
                     image_list.append(None)
-                image_list.append(gray_image[rect[1]-1:rect[3]-1, rect[0]+1:rect[2]+1, :] / 255)
+                image_list.append(gray_image[rect[1]:rect[3], rect[0]:rect[2], :] / 255)
                 rect_temp = rect
             result_str       = self.detect.find_class(image_list)
             self.text_result.setText(result_str)
