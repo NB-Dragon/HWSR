@@ -35,7 +35,8 @@ class Detect(object):
         transformer.set_raw_scale('data', 255)
 
         if len(image_list) == 0:
-            assert self.image_path is not None
+            if self.image_path is None:
+                return "识别错误：找不到识别区域，请重新调整"
             image_names = os.listdir(self.image_path)
             for img_name in image_names:
                 image_list.append(self.get_crop_image(self.image_path, img_name))
