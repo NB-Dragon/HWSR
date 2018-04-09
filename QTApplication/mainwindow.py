@@ -167,10 +167,12 @@ class Ui_MainWindow(object):
         self.sb_binary.valueChanged.connect(MainWindow.sb_value_change)
         self.sb_ratio.valueChanged.connect(MainWindow.sb_value_change)
         self.ck_print.stateChanged.connect(MainWindow.ck_value_change)
+        self.btn_split.clicked.connect(MainWindow.btn_click)
         self.btn_gray.clicked.connect(MainWindow.btn_click)
         self.btn_brinary.clicked.connect(MainWindow.btn_click)
         self.btn_location.clicked.connect(MainWindow.btn_click)
         self.btn_recognize.clicked.connect(MainWindow.btn_click)
+        self.lbl_image_origin.installEventFilter(self)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -189,7 +191,7 @@ class Ui_MainWindow(object):
         self.gp_show_image.setTitle(_translate("MainWindow", "图像预览区域"))
         self.text_result.setPlaceholderText(_translate("MainWindow", "识别结果将在此处显示"))
         self.gp_operate_image.setTitle(_translate("MainWindow", "图像操作"))
-        self.btn_split.setText(_translate("MainWindow", "切割图片"))
+        self.btn_split.setText(_translate("MainWindow", "裁剪图片"))
         self.btn_gray.setText(_translate("MainWindow", "灰度预览"))
         self.btn_brinary.setText(_translate("MainWindow", "二值预览"))
         self.btn_location.setText(_translate("MainWindow", "位置预览"))

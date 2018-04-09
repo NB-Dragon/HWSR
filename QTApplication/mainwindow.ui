@@ -239,7 +239,7 @@
           <item>
            <widget class="QPushButton" name="btn_split">
             <property name="text">
-             <string>切割图片</string>
+             <string>裁剪图片</string>
             </property>
            </widget>
           </item>
