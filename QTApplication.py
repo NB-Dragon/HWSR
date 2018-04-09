@@ -27,22 +27,30 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.original_image is None or self.start is False:
                 return False
             if a1.type()   == QtCore.QEvent.MouseButtonPress and a1.button() == 1:
-                self.start_point    = a1.pos()
+                self.start_point = a1.pos()
                 return True
             elif a1.type() == QtCore.QEvent.MouseMove and self.start_point is not None:
-                self.end_point      = a1.pos()
+                self.end_point   = a1.pos()
                 self.draw_rect(a0, self.pix_map, a0.size(), self.pix_map.size(), self.start_point, self.end_point)
                 return True
-            elif a1.type() == QtCore.QEvent.MouseButtonRelease and a1.button() == 1:
-                self.end_point      = a1.pos()
-                location            = self.draw_rect(a0, self.pix_map, a0.size(), self.pix_map.size(), self.start_point, self.end_point)
-                self.original_image = self.original_image[location[1]:location[3], location[0]:location[2], :]
-                self.pix_map        = self.get_pix_from_mat(self.original_image, a0.width(), a0.height())
-                self.start_point    = None
-                self.end_point      = None
-                self.start          = False
+            elif a1.type() == QtCore.QEvent.MouseButtonPress and a1.button() == 2:
+                self.start_point = None
+                a0.setToolTip("")
                 a0.setCursor(QtCore.Qt.ArrowCursor)
                 a0.setPixmap(self.pix_map)
+                return True
+            elif a1.type() == QtCore.QEvent.MouseButtonRelease and a1.button() == 1:
+                if self.start_point != None:
+                    self.end_point      = a1.pos()
+                    location            = self.draw_rect(a0, self.pix_map, a0.size(), self.pix_map.size(), self.start_point, self.end_point)
+                    self.original_image = self.original_image[location[1]:location[3], location[0]:location[2], :]
+                    self.pix_map        = self.get_pix_from_mat(self.original_image, a0.width(), a0.height())
+                    self.start_point    = None
+                    self.end_point      = None
+                    self.start          = False
+                    a0.setToolTip("")
+                    a0.setCursor(QtCore.Qt.ArrowCursor)
+                    a0.setPixmap(self.pix_map)
                 return True
             else:
                 return False
@@ -126,7 +134,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.original_image is None:return
             self.start = True
             self.lbl_image_origin.setCursor(QtCore.Qt.CrossCursor)
-            self.lbl_image_origin.setToolTip("按下拖拽，松开即可完成裁剪")
+            self.lbl_image_origin.setToolTip("通过鼠标左键拖动即可完成裁剪，中途可右键取消")
             return
 
         no_line = self.get_boolean(self.ck_noline.checkState())
