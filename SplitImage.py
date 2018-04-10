@@ -60,7 +60,7 @@ class RectChar(object):
         row_list = self.get_row_list(image)
         for i in range(len(row_list)):
             roi_image = image[row_list[i][0]:row_list[i][1], 0:self.get_shape(image)[1]]
-            col_list  = self.getColList(roi_image)
+            col_list  = self.get_col_list(roi_image)
             for j in range(len(col_list)):
                 if self.cut is True:
                     temp = self.get_small_size(image[row_list[i][0]:row_list[i][1], col_list[j][0]:col_list[j][1]])
@@ -110,13 +110,10 @@ class RectChar(object):
 
     def get_row_list(self, roi):
         length       = roi.shape[0]
+        each_row     = [0 in roi[nY, :] for nY in range(length)]
         start_index  = 0
-        start        = False
-        each_row     = []
+        start        = each_row[0]
         row_list     = []
-
-        for nY in range(length):
-            each_row.append(0 in roi[nY, :])
 
         for nY in range(length):
             if each_row[nY] ^ start:
@@ -126,17 +123,16 @@ class RectChar(object):
                 else:
                     start = False
                     row_list.append([start_index, nY])
+        if each_row[length-1] is True:
+            row_list.append([start_index, length-1])
         return row_list
 
-    def getColList(self, roi):
+    def get_col_list(self, roi):
         length      = roi.shape[1]
+        each_col    = [0 in roi[:, nX] for nX in range(length)]
         start_index = 0
-        start       = False
-        each_col    = []
+        start       = each_col[0]
         col_list    = []
-
-        for nX in range(length):
-            each_col.append(0 in roi[:, nX])
 
         for nX in range(length):
             if each_col[nX] ^ start:
@@ -146,6 +142,8 @@ class RectChar(object):
                 else:
                     start = False
                     col_list.append([start_index, nX])
+        if each_col[length-1] is True:
+            col_list.append([start_index, length-1])
         return col_list
 
 
