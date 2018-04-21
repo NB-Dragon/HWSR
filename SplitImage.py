@@ -148,20 +148,14 @@ class RectChar(object):
 
 
 if __name__ == '__main__':
-    image        = cv2.imread("汉字_手写.jpg")
-    from Detect import Detect
+    image        = cv2.imread("testImage/汉字_手写.jpg")
     rect_char    = RectChar()
     gray_image   = rect_char.get_gray_image(image)
     binary_image = rect_char.get_binary_image(gray_image)
     result_list  = rect_char.get_char_list(binary_image)
-    image_list   = []
-    
-    rect_temp = None
-    for rect in result_list:
-        if rect_temp is not None and (rect_temp[2] > rect[0] and rect_temp[1] < rect[3]):
-            image_list.append(None)
-        image_list.append(image[rect[1]:rect[3], rect[0]:rect[2], :]/255)
-        rect_temp = rect
-    detect = Detect()
-    result = detect.find_class(image_list)
-    print(result)
+
+    for char in result_list:
+        cv2.rectangle(image, (char[0], char[1]), (char[2], char[3]), (0, 0, 255))
+    cv2.imshow("Image Show", image)
+    cv2.moveWindow("Image Show", 0, 0)
+    cv2.waitKey(0)
